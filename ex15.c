@@ -3,8 +3,10 @@
 int main(int argc, char *argv[])
 {
     //create two arrays we care about
-    int ages[] = { 23, 43, 12, 89, 2 };
-    char *names[] = {"Alan","Frank","Mary","John","Lisa"};
+    int ages[] = { 23, 43};//, 12, 89, 2, 22, 24 };
+    char *names[] = {"Alan","Frank"};//,"Mary","John","Lisa","Jack","Kent"};
+    //ok so this really is a pointer to a pointer
+    //and a pointer is 8 bytes on the system i'm currently using
 
     //safely get the size of ages
     int count = sizeof(ages)/sizeof(int);
@@ -22,6 +24,9 @@ int main(int argc, char *argv[])
     int *cur_age = ages;
     char **cur_name = names;
     printf("cur_age: %ld ages: %ld \n", sizeof(cur_age), sizeof(ages));
+    printf("cur_name: %ld names: %ld \n", sizeof(cur_name), sizeof(names));
+    printf("int: %ld char: %ld \n", sizeof(int), sizeof(char));
+    printf("---\n");
 
     //second way using pointers
     for (i = 0; i < count; i++){

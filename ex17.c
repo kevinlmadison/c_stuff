@@ -158,6 +158,24 @@ void Database_list(struct Connection *conn)
     }
 }
 
+void Database_find(struct Connection *conn, const char *name_id)
+{
+   int i = 0;
+   struct Database *db = conn->db;
+
+   for (i = 0; i < MAX_ROWS; i++){
+       struct Address *cur = &db->rows[i];
+       if (cur->set) { 
+           if (strcmp(cur->name, name_id) == 0) {
+           printf("%s is at index %d \n", name_id, i);
+           } else {
+           printf("%s not found at index %d \n", name_id,  i);
+           }
+       }
+   }
+
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 3)
@@ -202,6 +220,9 @@ int main(int argc, char *argv[])
 
         case 'l':
             Database_list(conn);
+            break;
+        case 'f':
+            Database_find(conn, argv[3]);
             break;
         default:
             die("Invalid action: c=create, g=get, s=set, d=del, l=list");

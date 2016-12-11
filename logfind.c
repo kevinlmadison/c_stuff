@@ -53,6 +53,19 @@ error:
     return rc;
 }
 
+int found_it(int use_or, int found_count, int search_len)
+{
+    debug("use_or: %d, found_count: %d, search_len: %d", use_or, found_count, search_len);
+
+    if(use_or && found_count > 0) {
+        return 1;
+    } else if(!use_or && found_count == search_len) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 //This function will parse our arguments and check for the -o flag
 int parse_args(int *use_or, int *argc, char **argv[])
 {
@@ -79,7 +92,7 @@ int scanner(const char *filename, int args_num, char *search_for[])
 
     char *lines = calloc(MAX_LINES, 1);
     FILE *file = fopen(filename, "r");
-    char *found = NULL;
+    int found_count = 0;
     int i = 0;
     
     check_mem(lines);
@@ -90,13 +103,19 @@ int scanner(const char *filename, int args_num, char *search_for[])
     *  at the end of the string??? Not entirely sure here
     */
 
-    while (fgets(lines, MAX_LINES - 1, file) != NULL && found == NULL) {
-        for (i = 0; i < args_num && found == NULL; i++) {
-                found = strcasestr(lines, search_for[i]);
+    while (fgets(lines, MAX_LINES - 1, file) != NULL)
+    {
+        for (i = 0; i < args_num; i++) {
+                if(strcasestr(lines, search_for[i]) != NULL) {
+                    debug("file: %s, line: %s, search: %s", filename, lines, search_for[i]);
+                    found_count++;
                 //strcasestr(haystack, needle)
                 //returns NULL if needle not found in haystack
-                if (found) {
+                if (found_it(use_or, found_count, args_num)) {
                     printf("%s\n",filename);
+                    break;
+                } else {
+                    found_count = 0;
                 }
         }
     }
@@ -117,18 +136,21 @@ error:
 int main(int argc, char *argv[])
 {
     int i = 0;
+    int use_or = 0;
+
     glob_t matched_files;
+    check(parse_args(&use_or, &argc, &argv) == 0, "Usage: logfind [-o] words");
     check(list_files(&matched_files) == 0, "Failed to list files.");
-    check(argc > 1, "usage: logfind word word word");
+    check(argc > 1, "usage: logfind [-o] word");
     for (i = 0; i < matched_files.gl_pathc; i++) {
-        scanner(matched_files.gl_pathv[i], argc, argv);
+        scanner(matched_files.gl_pathv[i], use_or, argc, argv);
     }
     /*so this first function needs to return a list
      *of files that contain inclusively the arguments
      *given in the filename.
      */
+    globfree(&files_found);
     
-    scanner("logfind.c",argc, argv);
 
     return 0;
 
